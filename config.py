@@ -1,0 +1,1 @@
+coin_region = {'top': 265, 'left': 1643, 'width': 206, 'height': 40}
