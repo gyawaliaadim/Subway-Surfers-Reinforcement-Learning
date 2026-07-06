@@ -1,130 +1,101 @@
 import cv2
 import os
 
-# =========================
-# INPUTS
-# =========================
+# ----------------------------
+# Paths
+# ----------------------------
+BASE_DIR = os.getcwd()
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-
-template_path = os.path.join(
-    current_dir,
+image_path = os.path.abspath(os.path.join(
+    BASE_DIR,
     "..",
     "game_regions",
-    "cropped_police.jpg"
-)
+    "game_screen.jpg"
+))
 
-screenshot_path = os.path.join(
-    current_dir,
+numbers_path = os.path.abspath(os.path.join(
+    BASE_DIR,
     "..",
     "game_regions",
-    "police.jpg"
-)
+    "numbers"
+))
 
-REGION = {
-    'top': 569,
-    'left': 362,
-    'width': 1173,
-    'height': 454
+# ----------------------------
+# Coin region
+# ----------------------------
+coin_region = {
+    "top": 268,
+    "left": 1672,
+    "width": 178,
+    "height": 34
 }
 
-GOOD_MATCH_THRESHOLD = 20
+# ----------------------------
+# Load image
+# ----------------------------
+img = cv2.imread(image_path)
 
-# =========================
-# LOAD IMAGES
-# =========================
+if img is None:
+    raise FileNotFoundError(image_path)
 
-template = cv2.imread(template_path)
-screenshot = cv2.imread(screenshot_path)
+# Crop
+x = coin_region["left"]
+y = coin_region["top"]
+w = coin_region["width"]
+h = coin_region["height"]
 
-if template is None:
-    print("Failed to load template image")
-    exit()
+cropped = img[y:y+h, x:x+w]
 
-if screenshot is None:
-    print("Failed to load screenshot")
-    exit()
+# Convert to grayscale
+gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
 
-# =========================
-# CROP SEARCH REGION
-# =========================
+# Threshold
+_, gray = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
 
-x = REGION["left"]
-y = REGION["top"]
-w = REGION["width"]
-h = REGION["height"]
-
-search_region = screenshot[y:y+h, x:x+w]
-
-# =========================
-# CONVERT TO GRAYSCALE
-# =========================
-
-template_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-search_gray = cv2.cvtColor(search_region, cv2.COLOR_BGR2GRAY)
-
-# =========================
-# ORB FEATURES
-# =========================
-
-orb = cv2.ORB_create(nfeatures=2000)
-
-kp1, des1 = orb.detectAndCompute(template_gray, None)
-kp2, des2 = orb.detectAndCompute(search_gray, None)
-
-if des1 is None:
-    print("No features found in template")
-    exit()
-
-if des2 is None:
-    print("No features found in search region")
-    exit()
-
-# =========================
-# FEATURE MATCHING
-# =========================
-
-bf = cv2.BFMatcher(cv2.NORM_HAMMING)
-
-matches = bf.knnMatch(des1, des2, k=2)
-
-good_matches = []
-
-for pair in matches:
-    if len(pair) != 2:
-        continue
-
-    m, n = pair
-
-    if m.distance < 0.75 * n.distance:
-        good_matches.append(m)
-
-# =========================
-# RESULTS
-# =========================
-
-print(f"Keypoints in template: {len(kp1)}")
-print(f"Keypoints in region: {len(kp2)}")
-print(f"Good matches: {len(good_matches)}")
-
-found = len(good_matches) >= GOOD_MATCH_THRESHOLD
-
-print("Found:", found)
-
-# =========================
-# VISUALIZE MATCHES
-# =========================
-
-match_img = cv2.drawMatches(
-    template,
-    kp1,
-    search_region,
-    kp2,
-    good_matches[:50],
-    None,
-    flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
-)
-
-cv2.imshow("ORB Matches", match_img)
+# Uncomment to see what is being matched
+cv2.imshow("Coin Region", gray)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
+# ----------------------------
+# Template matching
+# ----------------------------
+matches_found = []
+
+for digit in range(10):
+
+    template_path = os.path.join(numbers_path, f"{digit}.png")
+    template = cv2.imread(template_path, cv2.IMREAD_GRAYSCALE)
+
+    if template is None:
+        print(f"Missing template: {template_path}")
+        continue
+
+    _, template = cv2.threshold(template, 128, 255, cv2.THRESH_BINARY)
+
+    result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
+
+    threshold = 0.95
+
+    ys, xs = (result >= threshold).nonzero()
+
+    for x in xs:
+        matches_found.append((x, str(digit)))
+
+# ----------------------------
+# Remove duplicate detections
+# ----------------------------
+matches_found.sort()
+
+filtered = []
+
+min_distance = 5
+
+for x, digit in matches_found:
+    if not filtered or x - filtered[-1][0] > min_distance:
+        filtered.append((x, digit))
+
+number = "".join(d for _, d in filtered)
+
+print("Matches:", filtered)
+print("Detected number:", number)

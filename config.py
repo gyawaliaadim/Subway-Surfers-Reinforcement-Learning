@@ -1,1 +1,6 @@
-coin_region = {'top': 265, 'left': 1643, 'width': 206, 'height': 40}
+coin_region = {
+    'top': 268,
+    'left': 1672,
+    'width': 178,
+    'height': 34
+}

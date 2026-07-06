@@ -10,7 +10,8 @@ the cropped image and the final AI input image for inspection. To test if the im
 
 import cv2
 import os
-from config import game_region
+# from config import game_region
+from config import coin_region
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,16 +19,16 @@ image_path = os.path.join(
     BASE_DIR,
     "..",
     "game_regions",
-    "middle bottom.png"
+    "game_screen.jpg"
 )
 
 image_path = os.path.abspath(image_path)
 
 # Crop region
-y = game_region['top']
-x = game_region['left']
-h = game_region['height']
-w = game_region['width']
+y = coin_region['top']
+x = coin_region['left']
+h = coin_region['height']
+w = coin_region['width']
 
 # Direct image path (ONLY ONE IMAGE)
 
@@ -48,11 +49,11 @@ cropped_img = img[y:y+h, x:x+w]
 gray_cropped = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
 # Resize for AI input
-ai_vision = cv2.resize(gray_cropped, (100, 100))
+# ai_vision = cv2.resize(gray_cropped, (100, 100))
 
 # Show
 cv2.imshow("Cropped B&W", gray_cropped)
-cv2.imshow("AI Input (100x100)", ai_vision)
+# cv2.imshow("AI Input (100x100)", ai_vision)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
