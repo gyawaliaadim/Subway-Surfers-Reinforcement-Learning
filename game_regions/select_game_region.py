@@ -11,7 +11,7 @@ captured for dataset collection or real-time AI inference.
 """
 
 import os
-
+from config import game_regions_path
 import mss
 import cv2
 import numpy as np
@@ -23,7 +23,7 @@ print("3. Press 'ENTER' or 'SPACE' to confirm, or 'c' to cancel.")
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # regions_folder = os.path.join(current_dir, "..", "game_regions", "left top.png")
-regions_folder = os.path.join(current_dir, "..", "game_regions", "police.jpg")
+regions_folder = os.path.join(game_regions_path, "police.jpg")
 
 with mss.mss() as sct:
     # 1. Capture the entire primary monitor

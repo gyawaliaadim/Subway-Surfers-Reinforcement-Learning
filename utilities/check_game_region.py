@@ -11,14 +11,9 @@ the cropped image and the final AI input image for inspection. To test if the im
 import cv2
 import os
 # from config import game_region
-from config import coin_region
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+from config import coin_region, game_regions_path
 image_path = os.path.join(
-    BASE_DIR,
-    "..",
-    "game_regions",
+   game_regions_path,
     "game_screen.jpg"
 )
 

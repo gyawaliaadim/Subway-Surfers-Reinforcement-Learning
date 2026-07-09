@@ -15,7 +15,7 @@ import os
 import mss
 import cv2
 import numpy as np
-
+from config import game_regions_path
 print("Select your game window: ")
 print("1. A screenshot window will pop up.")
 print("2. Click and drag a box over your Subway Surfers game window.")
@@ -23,7 +23,7 @@ print("3. Press 'ENTER' or 'SPACE' to confirm, or 'c' to cancel.")
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # regions_folder = os.path.join(current_dir, "..", "game_regions", "left top.png")
-regions_folder = os.path.join(current_dir, "..", "game_regions", "game_screen.jpg")
+regions_folder = os.path.join(game_regions_path, "game_screen.jpg")
 
 with mss.mss() as sct:
     # 1. Capture the entire primary monitor

@@ -11,14 +11,15 @@ exceeds the defined threshold, the script reports a successful match.
 import cv2
 import numpy as np
 import os
+from config import game_regions_path
 
 # =========================
 # INPUTS
 # =========================
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-img1_path = os.path.join(current_dir, "..", "game_regions", "cropped_image.png")
-img2_path = os.path.join(current_dir, "..", "game_regions", "endscreen.png")
+img1_path = os.path.join(game_regions_path, "cropped_image.png")
+img2_path = os.path.join(game_regions_path, "endscreen.png")
 
 REGION = {
     'top': 436,
